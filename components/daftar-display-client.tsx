@@ -24,7 +24,6 @@ export function DaftarDisplayClient({
       const letter = queueNumber.charAt(0);
       const numbers = queueNumber.slice(1).split("").join(" ");
       const text = `Nomor antrean, ${letter}, ${numbers}, silakan menuju, ${stationName}`;
-      console.log("Memutar suara:", text);
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "id-ID";
       utterance.rate = 0.85;
@@ -48,7 +47,6 @@ export function DaftarDisplayClient({
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("SSE Event Received:", data);
         if (data.action === "refresh") {
           fetchLatest();
         }
