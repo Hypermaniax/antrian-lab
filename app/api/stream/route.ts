@@ -4,28 +4,28 @@ import { eventEmitter } from "@/lib/eventEmitter";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const encoder = new TextEncoder();
+
   const stream = new ReadableStream({
     start(controller) {
-      // Send an initial connected message
-      controller.enqueue(`data: {"type": "connected"}\n\n`);
+      // Send initial connection successful message
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ action: 'connected' })}\n\n`));
 
-      const listener = (data: any) => {
+      const onRefresh = (data: any) => {
         try {
-          controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
         } catch (e) {
-          console.error("Error writing to stream", e);
+          // Stream might be closed
         }
       };
 
-      eventEmitter.on("refresh", listener);
+      eventEmitter.on('refresh', onRefresh);
 
       req.signal.addEventListener("abort", () => {
-        eventEmitter.off("refresh", listener);
+        eventEmitter.off('refresh', onRefresh);
         try {
-          controller.close();
-        } catch (e) {
-          // Ignore if already closed
-        }
+            controller.close();
+        } catch(e) {}
       });
     }
   });
@@ -35,7 +35,6 @@ export async function GET(req: NextRequest) {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
       "Connection": "keep-alive",
-      "X-Accel-Buffering": "no", // Disable buffering for Nginx proxy just in case
     },
   });
 }

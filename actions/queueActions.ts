@@ -29,7 +29,7 @@ export async function createQueue(json: { queueServiceId: string; patientName?: 
 }
 
 export async function callNextQueue(json: string | { stationId: string }) {
-  const stationId = typeof json === 'string' ? json : json.stationId;
+  const stationId = typeof json === 'object' ? json.stationId : String(json);
   try {
     const data = await queueService.callNextQueue(stationId);
     revalidatePath('/');
@@ -45,8 +45,8 @@ export async function recallQueue(
   json: string | { queueId: string; stationId: string },
   stationId?: string
 ) {
-  const queueId = typeof json === 'string' ? json : json.queueId;
-  const sId = typeof json === 'string' ? stationId! : json.stationId;
+  const queueId = typeof json === 'object' ? json.queueId : String(json);
+  const sId = typeof json === 'object' ? json.stationId : String(stationId);
   try {
     const data = await queueService.recallQueue(queueId, sId);
     revalidatePath('/');
@@ -62,8 +62,8 @@ export async function startQueueService(
   json: string | { queueId: string; stationId: string },
   stationId?: string
 ) {
-  const queueId = typeof json === 'string' ? json : json.queueId;
-  const sId = typeof json === 'string' ? stationId! : json.stationId;
+  const queueId = typeof json === 'object' ? json.queueId : String(json);
+  const sId = typeof json === 'object' ? json.stationId : String(stationId);
   try {
     const data = await queueService.startQueueService(queueId, sId);
     revalidatePath('/');
@@ -79,8 +79,8 @@ export async function completeQueueService(
   json: string | { queueId: string; stationId: string },
   stationId?: string
 ) {
-  const queueId = typeof json === 'string' ? json : json.queueId;
-  const sId = typeof json === 'string' ? stationId! : json.stationId;
+  const queueId = typeof json === 'object' ? json.queueId : String(json);
+  const sId = typeof json === 'object' ? json.stationId : String(stationId);
   try {
     const data = await queueService.completeQueueService(queueId, sId);
     revalidatePath('/');
@@ -119,5 +119,15 @@ export async function fetchQueuesByStage(stage: string) {
   } catch (error) {
     console.error('[fetchQueuesByStage]', error);
     return { success: false as const, error: 'Failed to fetch queues' };
+  }
+}
+
+export async function fetchDisplayData(date?: string) {
+  try {
+    const data = await queueService.getDisplayData(date);
+    return { success: true as const, data };
+  } catch (error) {
+    console.error('[fetchDisplayData]', error);
+    return { success: false as const, error: 'Failed to fetch display data' };
   }
 }
