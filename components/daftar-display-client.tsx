@@ -17,6 +17,21 @@ export function DaftarDisplayClient({
   const [loket1, setLoket1] = useState<DisplayQueue | null>(initialLoket1);
   const [loket2, setLoket2] = useState<DisplayQueue | null>(initialLoket2);
 
+  const speak = (queueNumber: string, stationName: string) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      
+      const letter = queueNumber.charAt(0);
+      const numbers = queueNumber.slice(1).split("").join(" ");
+      const text = `Nomor antrean, ${letter}, ${numbers}, silakan menuju, ${stationName}`;
+      console.log("Memutar suara:", text);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   // Background fetch (fallback consistency)
   useEffect(() => {
     const fetchLatest = async () => {
@@ -33,6 +48,7 @@ export function DaftarDisplayClient({
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("SSE Event Received:", data);
         if (data.action === "refresh") {
           fetchLatest();
         }
@@ -53,6 +69,30 @@ export function DaftarDisplayClient({
       clearInterval(interval);
     };
   }, []);
+
+  const [lastCall1, setLastCall1] = useState<string | null>(null);
+  const [lastCall2, setLastCall2] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Only speak if displayStatus is CALLED or SERVING and the timestamp changed
+    if (loket1 && (loket1.displayStatus === "CALLED" || loket1.displayStatus === "SERVING")) {
+      const callTime = (loket1 as any).lastCallTime;
+      if (callTime && callTime !== lastCall1 && loket1.queueNumber) {
+        speak(loket1.queueNumber, "Loket 1");
+        setLastCall1(callTime);
+      }
+    }
+  }, [loket1, lastCall1]);
+
+  useEffect(() => {
+    if (loket2 && (loket2.displayStatus === "CALLED" || loket2.displayStatus === "SERVING")) {
+      const callTime = (loket2 as any).lastCallTime;
+      if (callTime && callTime !== lastCall2 && loket2.queueNumber) {
+        speak(loket2.queueNumber, "Loket 2");
+        setLastCall2(callTime);
+      }
+    }
+  }, [loket2, lastCall2]);
 
   const getStatusColor = (status?: string) => {
     if (status === "SERVING") return "text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.4)]";

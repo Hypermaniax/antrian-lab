@@ -135,7 +135,7 @@ export const queueRepo = {
   async getDisplayData(queueDate: string) {
     const getLatestForStage = async (stage: string, calledEvents: string[]) => {
       const raw = await db
-        .select({ q: queues })
+        .select({ q: queues, eventAt: queueEvents.createdAt })
         .from(queueEvents)
         .innerJoin(queues, eq(queueEvents.queueId, queues.id))
         .where(and(eq(queues.queueDate, queueDate), eq(queueEvents.stage, stage), inArray(queueEvents.event, calledEvents)))
@@ -145,7 +145,7 @@ export const queueRepo = {
       if (!raw) return null;
       let displayStatus = 'COMPLETED';
       if (raw.q.currentStage === stage) displayStatus = raw.q.status;
-      return { ...raw.q, displayStatus };
+      return { ...raw.q, displayStatus, lastCallTime: raw.eventAt.toISOString() };
     };
 
     const loket1 = await getLatestForStage('REGISTRATION', ['REGISTRATION_CALLED', 'REGISTRATION_RECALLED', 'AUTO_CALLED']);
@@ -156,7 +156,7 @@ export const queueRepo = {
     const bloodDisplayData: any[] = [];
     for (const st of mejaStations) {
       const raw = await db
-        .select({ q: queues })
+        .select({ q: queues, eventAt: queueEvents.createdAt })
         .from(queueEvents)
         .innerJoin(queues, eq(queueEvents.queueId, queues.id))
         .where(and(eq(queues.queueDate, queueDate), eq(queueEvents.stationId, st.id), inArray(queueEvents.event, ['BLOOD_COLLECTION_CALLED', 'BLOOD_COLLECTION_RECALLED', 'AUTO_CALLED'])))
@@ -166,7 +166,7 @@ export const queueRepo = {
       if (raw) {
         let displayStatus = 'COMPLETED';
         if (raw.q.currentStationId === st.id) displayStatus = raw.q.status;
-        bloodDisplayData.push({ q: { ...raw.q, displayStatus }, s: st });
+        bloodDisplayData.push({ q: { ...raw.q, displayStatus, lastCallTime: raw.eventAt.toISOString() }, s: st });
       }
     }
     return { loket1, loket2, bloodDisplayData, mejaStations, today: queueDate };

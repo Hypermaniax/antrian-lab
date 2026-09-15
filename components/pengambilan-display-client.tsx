@@ -16,10 +16,28 @@ export function PengambilanDisplayClient({
 }) {
   const [mejaMap, setMejaMap] = useState<Record<string, MejaMapItem>>(initialMejaMap);
 
+  const speak = (queueNumber: string, stationName: string) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      
+      const letter = queueNumber.charAt(0);
+      const numbers = queueNumber.slice(1).split("").join(" ");
+      const text = `Nomor antrean, ${letter}, ${numbers}, silakan menuju, ${stationName}`;
+      console.log("Memutar suara:", text);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const [bloodDisplayData, setBloodDisplayData] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchLatest = async () => {
       const res = await fetchDisplayData();
       if (res.success && res.data) {
+        setBloodDisplayData(res.data.bloodDisplayData || []);
         const newMap: Record<string, MejaMapItem> = {};
         for (const st of mejaStations) {
           const found = res.data.bloodDisplayData.find((r: any) => r.s.id === st.id);
@@ -34,6 +52,7 @@ export function PengambilanDisplayClient({
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("SSE Event Received:", data);
         if (data.action === "refresh") {
           fetchLatest();
         }

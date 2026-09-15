@@ -12,9 +12,9 @@ import { QUEUE_STAGE, QUEUE_STATUS, QUEUE_EVENT } from '@/lib/constants';
 // ── helpers ──────────────────────────────────────────────────────────
 const formatQueueNumber = (prefix: string, seq: number) => `${prefix}${String(seq).padStart(3, '0')}`;
 const todayDateString = () => new Date().toISOString().split('T')[0];
-const notifyDisplay = () => {
+const notifyDisplay = (speakData?: { queueNumber: string; stationName: string }) => {
   try {
-    eventEmitter.emit('refresh', { action: 'refresh', timestamp: Date.now() });
+    eventEmitter.emit('refresh', { action: 'refresh', timestamp: Date.now(), speakData });
   } catch (e) {
     // safe ignore
   }
@@ -153,7 +153,7 @@ export const queueService = {
       return updated;
     });
     if (!result) throw new Error('No waiting queue available');
-    notifyDisplay();
+    notifyDisplay({ queueNumber: result.queueNumber, stationName: station.name });
     return result;
   },
 
@@ -170,7 +170,7 @@ export const queueService = {
       stage: queue.currentStage,
       stationId,
     });
-    notifyDisplay();
+    notifyDisplay({ queueNumber: queue.queueNumber, stationName: station.name });
     return queue;
   },
 
@@ -212,7 +212,11 @@ export const queueService = {
       const autoCalled = config.autoCallStage ? await autoCallNext(tx as never, config.autoCallStage, queue.queueDate, station, queueId) : null;
       return { completedQueue, autoCalled };
     });
-    notifyDisplay();
+    if (result.autoCalled) {
+      notifyDisplay({ queueNumber: result.autoCalled.queueNumber, stationName: station.name });
+    } else {
+      notifyDisplay();
+    }
     return result;
   },
 
