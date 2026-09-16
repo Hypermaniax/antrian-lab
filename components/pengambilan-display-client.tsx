@@ -15,6 +15,7 @@ export function PengambilanDisplayClient({
   mejaStations: Station[];
 }) {
   const [mejaMap, setMejaMap] = useState<Record<string, MejaMapItem>>(initialMejaMap);
+  const [audioEnabled, setAudioEnabled] = useState(false);
 
   const speak = (queueNumber: string, stationName: string) => {
     if ("speechSynthesis" in window) {
@@ -53,6 +54,9 @@ export function PengambilanDisplayClient({
         const data = JSON.parse(event.data);
         if (data.action === "refresh") {
           fetchLatest();
+          if (audioEnabled && data.speakData && mejaStations.some(s => s.name === data.speakData.stationName)) {
+            speak(data.speakData.queueNumber, data.speakData.stationName);
+          }
         }
       } catch (err) {
         // Safe ignore
@@ -69,7 +73,7 @@ export function PengambilanDisplayClient({
       eventSource.close();
       clearInterval(interval);
     };
-  }, [mejaStations]);
+  }, [mejaStations, audioEnabled]);
 
   const getStatusColor = (status?: string) => {
     if (status === "SERVING") return "text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.4)]";
@@ -82,6 +86,28 @@ export function PengambilanDisplayClient({
     if (status === "CALLED") return "border-amber-500/50 shadow-[0_0_40px_rgba(251,191,36,0.15)] bg-amber-950/10";
     return "border-zinc-800/50 bg-zinc-900/20";
   };
+
+  if (!audioEnabled) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-10 bg-zinc-950/50">
+        <Volume2 className="h-20 w-20 text-zinc-600 mb-6" />
+        <h2 className="text-2xl font-bold text-zinc-300 mb-8">Tampilan Pengambilan Darah Siap</h2>
+        <button
+          onClick={() => {
+            setAudioEnabled(true);
+            // Play a silent utterance to unlock audio context in Safari/Chrome
+            if ("speechSynthesis" in window) {
+              const u = new SpeechSynthesisUtterance("");
+              window.speechSynthesis.speak(u);
+            }
+          }}
+          className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xl transition-all shadow-lg shadow-blue-500/20"
+        >
+          Mulai & Aktifkan Suara
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex-1 grid gap-8 p-10 lg:p-12 ${mejaStations.length > 2 ? 'grid-cols-3' : 'grid-cols-2'}`}>
