@@ -142,13 +142,25 @@ export function BloodCollectionClient({ stations, waiting, byStation }: { statio
                   {waiting.length===0 ? (
                     <div className="text-sm text-muted-foreground border border-dashed rounded-md p-6 text-center">Kosong</div>
                   ) : (
-                    <div className="space-y-2 max-h-[320px] overflow-auto pr-1">
-                      {waiting.slice(0,12).map(q=>(
-                        <div key={q.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
-                          <span className="font-mono text-sm font-medium">{q.queueNumber}</span>
-                          <Badge variant="secondary" className="text-xs">WAITING</Badge>
-                        </div>
-                      ))}
+                    <div className="max-h-[320px] overflow-auto">
+                      <table className="w-full text-sm">
+                        <thead className="text-xs text-muted-foreground sticky top-0 bg-card z-10">
+                          <tr className="border-b">
+                            <th className="text-left p-2 font-medium">Nomor</th>
+                            <th className="text-left p-2 font-medium">Pasien</th>
+                            <th className="text-right p-2 font-medium">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {waiting.map(q=>(
+                            <tr key={q.id} className="border-b last:border-0 hover:bg-muted/40">
+                              <td className="p-2 font-mono font-bold">{q.queueNumber}</td>
+                              <td className="p-2 truncate max-w-[120px]">{q.patientName || "—"}</td>
+                              <td className="p-2 text-right"><Badge variant="secondary" className="text-[10px]">WAITING</Badge></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </CardContent>

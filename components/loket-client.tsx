@@ -173,13 +173,25 @@ export function LoketClient({
                 {(waitingByStage[s.stage]?.length ?? 0) === 0 ? (
                   <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">Kosong</div>
                 ) : (
-                  <div className="space-y-2 max-h-[360px] overflow-auto pr-1">
-                    {waitingByStage[s.stage].slice(0, 8).map((q) => (
-                      <div key={q.id} className="rounded-lg border px-3 py-2 flex items-center justify-between">
-                        <span className="font-mono font-medium text-sm">{q.queueNumber}</span>
-                        <Badge variant="secondary" className="text-xs">{q.status}</Badge>
-                      </div>
-                    ))}
+                  <div className="max-h-[360px] overflow-auto">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs text-muted-foreground sticky top-0 bg-card z-10">
+                        <tr className="border-b">
+                          <th className="text-left p-2 font-medium">Nomor</th>
+                          <th className="text-left p-2 font-medium">Pasien</th>
+                          <th className="text-right p-2 font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {waitingByStage[s.stage].map((q) => (
+                          <tr key={q.id} className="border-b last:border-0 hover:bg-muted/40">
+                            <td className="p-2 font-mono font-bold">{q.queueNumber}</td>
+                            <td className="p-2 truncate max-w-[120px]">{q.patientName || "—"}</td>
+                            <td className="p-2 text-right"><Badge variant="secondary" className="text-[10px]">{q.status}</Badge></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </CardContent>

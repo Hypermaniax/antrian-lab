@@ -1,10 +1,16 @@
 import { stationService } from '@/services/station.service';
 import { queueService } from '@/services/queue.service';
 import { LoketClient } from '@/components/loket-client';
+import { QueueHistoryTable } from '@/components/queue-history-table';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LoketPage() {
+export default async function LoketPage(props: { searchParams: Promise<{ page?: string; stage?: string; date?: string }> }) {
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams.page) || 1;
+  const stage = searchParams.stage || "all";
+  const date = searchParams.date || "";
+
   // Data diambil dari service, bukan query langsung di page
   const lokets = await stationService.getStationsByStage('REGISTRATION');
   const hasilLokets = await stationService.getStationsByStage('RESULT_PICKUP');
@@ -65,6 +71,7 @@ export default async function LoketPage() {
         </p>
       </div>
       <LoketClient stations={stationsForClient} waitingByStage={waitingByStage as never} currentByStation={currentByStation as never} />
+      <QueueHistoryTable page={page} stage={stage} date={date} />
     </main>
   );
 }

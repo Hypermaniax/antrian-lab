@@ -102,6 +102,25 @@ async function autoCallNext(
 
 // ── service object — semua query ke repo, service cuma orkestrasi bisnis ─────────────────────
 export const queueService = {
+  async resetToday() {
+    const queueDate = todayDateString();
+    return db.transaction(async (tx) => {
+      // Drizzle doesn't support easy multi-table delete without raw sql sometimes, 
+      // but we can import the tables and delete them
+      const { queues, queueSequences, queueEvents } = await import('@/db/schema');
+      const { eq } = await import('drizzle-orm');
+      // queueEvents cascadingly deleted? 
+      // actually queues delete doesn't cascade queueEvents if it's not set in schema. Let's delete events first.
+      // Or simply raw sql
+      const { sql } = await import('drizzle-orm');
+      await tx.execute(sql`DELETE FROM queue_events WHERE queue_id IN (SELECT id FROM queues WHERE queue_date = ${queueDate})`);
+      await tx.execute(sql`DELETE FROM queues WHERE queue_date = ${queueDate}`);
+      await tx.execute(sql`DELETE FROM queue_sequences WHERE queue_date = ${queueDate}`);
+      
+      notifyDisplay();
+      return true;
+    });
+  },
   async createQueue(data: { queueServiceId: string; patientName?: string | null; patientId?: string | null }) {
     const service = await queueServiceRepo.getById(data.queueServiceId);
     if (!service) throw new Error('Service not found');
@@ -236,4 +255,6 @@ export const queueService = {
   getDisplayData: (date?: string) => queueRepo.getDisplayData(date ?? todayDateString()),
 
   getActiveQueuesByStationIds: (stationIds: string[]) => queueRepo.getActiveByStationIds(stationIds, todayDateString()),
+  
+  getPaginatedQueues: (page: number, limit: number, stage?: string, date?: string) => queueRepo.getPaginated(page, limit, stage, date),
 };

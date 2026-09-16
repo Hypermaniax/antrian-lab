@@ -131,3 +131,17 @@ export async function fetchDisplayData(date?: string) {
     return { success: false as const, error: 'Failed to fetch display data' };
   }
 }
+
+export async function resetTodayQueuesAction() {
+  try {
+    await queueService.resetToday();
+    revalidatePath('/');
+    revalidatePath('/queues');
+    revalidatePath('/admin');
+    return { success: true as const };
+  } catch (error) {
+    console.error('[resetTodayQueuesAction]', error);
+    return { success: false as const, error: 'Failed to reset queues' };
+  }
+}
+

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { queueService } from "@/services/queue.service";
 import { Ticket, ClipboardList, TestTube, CheckCircle2, ArrowRight, FlaskConical } from "lucide-react";
 
+import { SSEAutoRefresh } from "@/components/sse-auto-refresh";
+
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
@@ -17,6 +19,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      <SSEAutoRefresh />
       {/* Hero */}
       <div className="rounded-2xl border bg-gradient-to-br from-background via-background to-muted/40 p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
@@ -133,7 +136,7 @@ export default async function Home() {
                       <td className="p-2"><Badge variant="outline" className="text-[11px]">{q.currentStage}</Badge></td>
                       <td className="p-2"><Badge className="text-[11px]" variant={q.status === "COMPLETED" ? "default" : q.status === "WAITING" ? "secondary" : "outline"}>{q.status}</Badge></td>
                       <td className="p-2 text-xs text-muted-foreground">{q.currentStationId?.slice(0, 8) ?? "—"}</td>
-                      <td className="p-2 text-xs text-muted-foreground">{new Date(q.createdAt).toLocaleTimeString("id-ID")}</td>
+                      <td className="p-2 text-xs text-muted-foreground">{new Intl.DateTimeFormat("id-ID", { timeStyle: "medium" }).format(new Date(q.createdAt))} WIB</td>
                     </tr>
                   ))}
                 </tbody>

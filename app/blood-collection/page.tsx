@@ -1,10 +1,16 @@
 import { stationService } from '@/services/station.service';
 import { queueService } from '@/services/queue.service';
 import { BloodCollectionClient } from '@/components/blood-collection-client';
+import { QueueHistoryTable } from '@/components/queue-history-table';
 
 export const dynamic = 'force-dynamic';
 
-export default async function BloodCollectionPage() {
+export default async function BloodCollectionPage(props: { searchParams: Promise<{ page?: string; stage?: string; date?: string }> }) {
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams.page) || 1;
+  const stage = searchParams.stage || "BLOOD_COLLECTION"; // Default for this page
+  const date = searchParams.date || "";
+
   const allStations = await stationService.getStationsByStage('BLOOD_COLLECTION');
   const waiting = await queueService.getWaitingByStage('BLOOD_COLLECTION');
 
@@ -28,16 +34,15 @@ export default async function BloodCollectionPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Pengambilan Darah — Meja 1 • 2 • 3</h1>
-        <p className="text-sm text-muted-foreground">
-          Satu layanan, banyak station. Claim antrean pakai transaction + FOR UPDATE. Selesai = COMPLETED + auto-call berikutnya ke meja yang sama.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Pengambilan Darah</h1>
+        <p className="text-sm text-muted-foreground">Meja pengambilan darah untuk antrean B dan C (semua meja paralel).</p>
       </div>
       <BloodCollectionClient
-        stations={allStations.map((s) => ({ id: s.id, name: s.name, code: s.code }))}
+        stations={allStations}
         waiting={waiting as never}
         byStation={byStation as never}
       />
+      <QueueHistoryTable page={page} stage={stage} date={date} />
     </main>
   );
 }

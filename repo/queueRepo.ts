@@ -95,6 +95,33 @@ export const queueRepo = {
     return db.select().from(queues).orderBy(desc(queues.createdAt)).limit(limit);
   },
 
+  async getPaginated(page: number, limit: number, stageFilter?: string, dateFilter?: string) {
+    const offset = (page - 1) * limit;
+    
+    const conditions = [];
+    if (stageFilter) conditions.push(eq(queues.currentStage, stageFilter));
+    if (dateFilter) conditions.push(eq(queues.queueDate, dateFilter));
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    
+    const [countRes] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(queues)
+      .where(whereClause);
+      
+    const total = Number(countRes.count);
+    
+    const data = await db
+      .select()
+      .from(queues)
+      .where(whereClause)
+      .orderBy(desc(queues.createdAt))
+      .limit(limit)
+      .offset(offset);
+      
+    return { data, total, page, limit };
+  },
+
   async getActiveByStationIds(stationIds: string[], queueDate: string) {
     if (stationIds.length === 0) return [];
     return db
