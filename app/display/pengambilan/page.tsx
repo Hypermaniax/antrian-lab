@@ -16,15 +16,38 @@ export default async function PengambilanDisplayPage() {
   }
 
   return (
-    <main className="h-screen w-screen overflow-hidden bg-zinc-950 text-white flex flex-col font-sans">
+    <main className="h-screen w-screen overflow-hidden mesh-bg text-white flex flex-col font-sans">
       <PengambilanDisplayClient initialMejaMap={mejaMap} mejaStations={mejaStations} />
       
       {/* FOOTER TICKER */}
-      <div className="h-14 bg-zinc-900 border-t border-zinc-800/80 flex items-center px-12 text-zinc-500 text-base tracking-[0.2em] uppercase font-semibold">
-        <span className="flex items-center gap-3">
-          <div className="h-3 w-3 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(225,29,72,0.8)]" /> 
-          Sistem Antrean Realtime
-        </span>
+      <div className="h-12 bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-800/60 flex items-center overflow-hidden relative">
+        <div className="flex items-center gap-4 px-8 animate-ticker whitespace-nowrap">
+          <span className="flex items-center gap-2 text-zinc-400 text-sm tracking-[0.15em] uppercase font-semibold">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
+            </span>
+            Pengambilan Darah — Realtime
+          </span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Meja 1 — Meja 2 — Meja 3</span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Silakan menunggu nomor Anda dipanggil</span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Pastikan nomor antrean Anda sudah terdaftar</span>
+          {/* Duplicate for seamless loop */}
+          <span className="text-zinc-700 mx-8">•</span>
+          <span className="flex items-center gap-2 text-zinc-400 text-sm tracking-[0.15em] uppercase font-semibold">
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
+            Pengambilan Darah — Realtime
+          </span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Meja 1 — Meja 2 — Meja 3</span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Silakan menunggu nomor Anda dipanggil</span>
+          <span className="text-zinc-700 mx-4">•</span>
+          <span className="text-zinc-500 text-sm tracking-wider">Pastikan nomor antrean Anda sudah terdaftar</span>
+        </div>
       </div>
     </main>
   );

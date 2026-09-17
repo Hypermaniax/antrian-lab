@@ -25,8 +25,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AppSidebar />
         <SidebarInset>
           <div className="flex-1">{children}</div>
-          <footer className="border-t bg-background py-4 text-center text-xs text-muted-foreground">
-            Lab Waiting List • Server Components • Actions + Repo • Tanpa auth (dev)
+          <footer className="border-t bg-background/80 backdrop-blur-sm py-4 text-center text-xs text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span className="font-medium text-foreground/60">Lab Queue</span>
+              <span className="text-border">•</span>
+              <span>Server Components</span>
+              <span className="text-border">•</span>
+              <span>Actions + Repo</span>
+              <span className="text-border">•</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[10px]">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                Dev Mode
+              </span>
+            </div>
           </footer>
         </SidebarInset>
       </body>

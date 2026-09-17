@@ -1,5 +1,6 @@
 import { fetchQueueServices } from "@/actions/queueServiceActions";
 import { TakeQueueForm } from "@/components/take-queue-form";
+import { Ticket } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,14 @@ export default async function TakePage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Ambil Antrean</h1>
-        <p className="text-sm text-muted-foreground">Pasien hanya menekan tombol layanan — tanpa input nama. Nomor di-generate otomatis (B001) → REGISTRATION WAITING</p>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center">
+            <Ticket className="h-5 w-5 text-primary" />
+          </div>
+          Ambil Antrean
+        </h1>
+        <p className="text-sm text-muted-foreground">Pilih layanan dan tekan tombol — nomor antrean otomatis digenerate.</p>
       </div>
       <TakeQueueForm services={services} />
     </main>
